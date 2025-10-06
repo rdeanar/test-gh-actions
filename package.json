@@ -1,5 +1,5 @@
 {
-    "name": "@deanar/test-gh-actions",
+    "name": "deanar-test-gh-actions",
     "version": "0.0.2",
     "description": "Test GH actions with NPM packages",
     "main": "dist/index.js",
