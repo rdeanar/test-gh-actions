@@ -1,0 +1,47 @@
+{
+    "compilerOptions": {
+        // Project
+        "target": "es2020",
+        "lib": ["es2020"],
+        "outDir": "./dist",
+        "declaration": true,
+        "declarationMap": false,
+        "sourceMap": false,
+
+        // Module
+        "module": "CommonJS",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        
+        // Import aliases
+        "paths": {
+            "#src/*/.": ["./src/*/index.ts"],
+            "#src/*": ["./src/*.ts"]
+        },
+        "plugins": [
+            { "transform": "typescript-transform-paths" },
+            { "transform": "typescript-transform-paths", "afterDeclarations": true },
+        ],
+        
+        // Strict
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictBindCallApply": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": true,
+        // "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+
+        // Adv
+        "incremental": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+    },
+    "include": [
+        "src"
+    ]
+}
