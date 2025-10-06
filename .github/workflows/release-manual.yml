@@ -1,0 +1,33 @@
+name: Publish - manual (patch)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Simulate publish without uploading to npm'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Publish patch
+        uses: ./.github/actions/publish-patch
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RW }}
+        with:
+          dry-run: ${{ inputs['dry-run'] }}

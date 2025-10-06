@@ -1,18 +1,6 @@
 name: 'Publish NPM - patch'
-description: 'Bump patch version, publish to npm, push the tag and commit'
+description: 'Bump patch version and publish to npm'
 inputs:
-  working-directory:
-    description: 'Package directory'
-    required: false
-    default: '.'
-  run-tests:
-    description: 'Run npm test before publishing'
-    required: false
-    default: 'false'
-  access:
-    description: 'npm access flag'
-    required: false
-    default: 'public'
   git-user-name:
     description: 'Git user.name for the tagging commit'
     required: false
@@ -25,6 +13,7 @@ inputs:
     description: 'Do a dry run of npm publish'
     required: false
     default: 'false'
+
 runs:
   using: 'composite'
   steps:
@@ -36,7 +25,6 @@ runs:
 
     - name: Install
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
       run: npm ci
 
     - name: Configure git
@@ -45,25 +33,17 @@ runs:
         git config user.name "${{ inputs.git-user-name }}"
         git config user.email "${{ inputs.git-user-email }}"
 
-    - name: Bump version and tag (patch)
+    - name: Bump version
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
-      run: npm version patch -m "chore(release): %s [skip ci]"
+      run: npm version patch
 
     - name: Publish to npm
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
       env:
         NODE_AUTH_TOKEN: ${{ env.NODE_AUTH_TOKEN }}
       run: |
         if [ "${{ inputs.dry-run }}" = "true" ]; then
-          npm publish --access ${{ inputs.access }} --dry-run
+          npm publish --dry-run
         else
-          npm publish --access ${{ inputs.access }}
+          npm publish
         fi
-
-    - name: Push commit and tags
-      shell: bash
-      run: |
-        BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-        git push origin "HEAD:${BRANCH}" --follow-tags
