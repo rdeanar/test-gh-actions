@@ -21,6 +21,24 @@ jobs:
       contains(github.event.pull_request.labels.*.name, 'publish-on-merge')
     runs-on: ubuntu-latest
     steps:
+      # Create a placeholder comment
+      - name: Create placeholder comment
+        id: comment_placeholder
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = [
+              `⏳ Publishing selectors package started. Please wait...`,
+            ].join('\n');
+            const { data } = await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body
+            });
+            core.setOutput('id', String(data.id));
+
       - name: Checkout master
         uses: actions/checkout@v4
         with:
@@ -39,17 +57,30 @@ jobs:
           echo "name=$(node -p "require('./package.json').name")" >> "$GITHUB_OUTPUT"
           echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
+      # Update comment with the published version
       - name: Comment on PR with published version
         uses: actions/github-script@v7
+        env:
+          COMMENT_ID: ${{ steps.comment_placeholder.outputs.id }}
         with:
           script: |
+            const comment_id = Number(process.env.COMMENT_ID);
             const pr = context.payload.pull_request;
             const pkgName = '${{ steps.pkg.outputs.name }}';
             const pkgVersion = '${{ steps.pkg.outputs.version }}';
-            const body = `✅ Published \`${pkgName}@${pkgVersion}\` to npm.`;
-            await github.rest.issues.createComment({
+      
+            const body = [
+              `✅ Published **${pkgName}@${pkgVersion}** to npm.`,
+              '',
+              'Install:',
+              '```sh',
+              `npm i ${pkgName}@${pkgVersion}`,
+              '```'
+            ].join('\n');
+            
+            await github.rest.issues.updateComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pr.number,
+              comment_id,
               body
             });
