@@ -2,11 +2,6 @@ name: Publish - manual (patch)
 
 on:
   workflow_dispatch:
-    inputs:
-      dry-run:
-        description: 'Simulate publish without uploading to npm'
-        type: boolean
-        default: false
 
 permissions:
   contents: write
@@ -40,5 +35,3 @@ jobs:
         uses: ./.github/actions/publish-patch
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RW }}
-        with:
-          dry-run: ${{ inputs['dry-run'] }}

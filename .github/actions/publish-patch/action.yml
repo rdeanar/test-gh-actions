@@ -9,10 +9,6 @@ inputs:
     description: 'Git user.email for the tagging commit'
     required: false
     default: 'github-actions[bot]@users.noreply.github.com'
-  dry-run:
-    description: 'Do a dry run of npm publish'
-    required: false
-    default: 'false'
 
 runs:
   using: 'composite'
@@ -42,8 +38,4 @@ runs:
       env:
         NODE_AUTH_TOKEN: ${{ env.NODE_AUTH_TOKEN }}
       run: |
-        if [ "${{ inputs.dry-run }}" = "true" ]; then
-          npm publish --dry-run
-        else
-          npm publish
-        fi
+        npm publish
