@@ -1,0 +1,58 @@
+name: Publish - on merged PR (patch)
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+# Needed to push tags/commits and to comment on the PR
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  REQUIRED_LABEL: publish-on-merge
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, env.REQUIRED_LABEL)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Publish patch
+        uses: ./.github/actions/publish-patch
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Read the bumped name and version after the action runs
+      - name: Read package name and version
+        id: pkg
+        run: |
+          echo "name=$(node -p "require('./package.json').name")" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on PR with published version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const pkgName = '${{ steps.pkg.outputs.name }}';
+            const pkgVersion = '${{ steps.pkg.outputs.version }}';
+            const body = `✅ Published \`${pkgName}@${pkgVersion}\` to npm.`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body
+            });
