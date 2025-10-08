@@ -30,6 +30,7 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN_RW_BYPASS_BRANCH_PROTECTION }}
 
       - name: Publish patch
         uses: ./.github/actions/publish-patch

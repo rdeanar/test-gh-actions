@@ -1,14 +1,9 @@
 name: 'Publish NPM - patch'
 description: 'Bump patch version and publish to npm'
 inputs:
-  git-user-name:
-    description: 'Git user.name for the tagging commit'
-    required: false
-    default: 'github-actions[bot]'
-  git-user-email:
-    description: 'Git user.email for the tagging commit'
-    required: false
-    default: 'github-actions[bot]@users.noreply.github.com'
+  gh-pat:
+    description: 'GitHub PAT with repo access to push the tagging commit'
+    required: true
 
 runs:
   using: 'composite'
@@ -23,11 +18,36 @@ runs:
       shell: bash
       run: npm ci
 
-    - name: Configure git
-      shell: bash
+    - name: Read user identity from PAT
+      id: who
+      env:
+        GH_TOKEN: ${{ inputs.gh-pat }}
       run: |
-        git config user.name "${{ inputs.git-user-name }}"
-        git config user.email "${{ inputs.git-user-email }}"
+        name=$(gh api /user --jq '.name // .login')
+        # requires user:email scope - may be empty if user hides email
+        email=$(gh api /user/emails --jq '.[] | select(.primary==true).email' | head -n1)
+        
+        # fallback to noreply if email is empty
+        if [ -z "$email" ]; then
+          login=$(gh api /user --jq .login)
+          uid=$(gh api /user --jq .id)
+          email="${uid}+${login}@users.noreply.github.com"
+        fi
+        
+        echo "name=$name"   >> $GITHUB_OUTPUT
+        echo "email=$email" >> $GITHUB_OUTPUT
+
+    - name: Configure git author
+      run: |
+        git config user.name  "${{ steps.who.outputs.name }}"
+        git config user.email "${{ steps.who.outputs.email }}"
+
+    - name: Configure git remote to push commit and tags with PAT
+      env:
+        PAT:  ${{ inputs.gh-pat }}
+        REPO: ${{ github.repository }}
+      run: |
+        git remote set-url origin "https://x-access-token:${PAT}@github.com/${REPO}.git"
 
     - name: Bump version
       shell: bash
