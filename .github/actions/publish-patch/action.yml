@@ -1,5 +1,5 @@
-name: 'Publish NPM - patch'
-description: 'Bump patch version and publish to npm'
+name: 'Publish NPM'
+description: 'Bump version and publish to npm'
 inputs:
   bump:
     description: 'Version bump type'

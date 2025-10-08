@@ -1,4 +1,5 @@
-name: Publish - manual (patch)
+name: Publish - manual
+run-name: Publish - manual (${{ github.event.inputs.bump || 'patch' }})
 
 on:
   workflow_dispatch:
