@@ -1,6 +1,12 @@
 name: 'Publish NPM - patch'
 description: 'Bump patch version and publish to npm'
 inputs:
+  bump:
+    description: 'Version bump type'
+    required: true
+    default: 'patch'
+    type: choice
+    options: [patch, minor, major, prerelease]
   gh-pat:
     description: 'GitHub PAT with repo access to push the tagging commit'
     required: true
@@ -54,7 +60,7 @@ runs:
 
     - name: Bump version
       shell: bash
-      run: npm version patch
+      run: npm version "${{ inputs.bump }}"
 
     - name: Publish to npm
       shell: bash

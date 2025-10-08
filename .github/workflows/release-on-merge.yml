@@ -57,6 +57,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RW }}
         with:
+          bump: 'patch'
           gh-pat: ${{ secrets.GH_TOKEN_RW_BYPASS_BRANCH_PROTECTION }}
 
       # Read the bumped name and version after the action runs
