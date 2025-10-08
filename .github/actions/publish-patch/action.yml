@@ -35,7 +35,7 @@ runs:
           email="${uid}+${login}@users.noreply.github.com"
         fi
         
-        echo "name=$name[bot]"   >> $GITHUB_OUTPUT
+        echo "name=$name"   >> $GITHUB_OUTPUT
         echo "email=$email" >> $GITHUB_OUTPUT
 
     - name: Configure git author
