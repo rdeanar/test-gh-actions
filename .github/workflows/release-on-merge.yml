@@ -50,11 +50,14 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN_RW_BYPASS_BRANCH_PROTECTION }}
 
       - name: Publish patch
         uses: ./.github/actions/publish-patch
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RW }}
+        with:
+          gh-pat: ${{ secrets.GH_TOKEN_RW_BYPASS_BRANCH_PROTECTION }}
 
       # Read the bumped name and version after the action runs
       - name: Read package name and version
