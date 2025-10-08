@@ -19,6 +19,7 @@ runs:
       run: npm ci
 
     - name: Read user identity from PAT
+      shell: bash
       id: who
       env:
         GH_TOKEN: ${{ inputs.gh-pat }}
@@ -38,11 +39,13 @@ runs:
         echo "email=$email" >> $GITHUB_OUTPUT
 
     - name: Configure git author
+      shell: bash
       run: |
         git config user.name  "${{ steps.who.outputs.name }}"
         git config user.email "${{ steps.who.outputs.email }}"
 
     - name: Configure git remote to push commit and tags with PAT
+      shell: bash
       env:
         PAT:  ${{ inputs.gh-pat }}
         REPO: ${{ github.repository }}
