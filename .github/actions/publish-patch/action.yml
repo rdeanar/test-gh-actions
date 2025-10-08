@@ -18,31 +18,31 @@ runs:
       shell: bash
       run: npm ci
 
-    - name: Read user identity from PAT
-      shell: bash
-      id: who
-      env:
-        GH_TOKEN: ${{ inputs.gh-pat }}
-      run: |
-        name=$(gh api /user --jq '.name // .login')
-        # requires user:email scope - may be empty if user hides email
-        email=$(gh api /user/emails --jq '.[] | select(.primary==true).email' | head -n1)
-        
-        # fallback to noreply if email is empty
-        if [ -z "$email" ]; then
-          login=$(gh api /user --jq .login)
-          uid=$(gh api /user --jq .id)
-          email="${uid}+${login}@users.noreply.github.com"
-        fi
-        
-        echo "name=$name"   >> $GITHUB_OUTPUT
-        echo "email=$email" >> $GITHUB_OUTPUT
-
-    - name: Configure git author
-      shell: bash
-      run: |
-        git config user.name  "${{ steps.who.outputs.name }}"
-        git config user.email "${{ steps.who.outputs.email }}"
+#    - name: Read user identity from PAT
+#      shell: bash
+#      id: who
+#      env:
+#        GH_TOKEN: ${{ inputs.gh-pat }}
+#      run: |
+#        name=$(gh api /user --jq '.name // .login')
+#        # requires user:email scope - may be empty if user hides email
+#        email=$(gh api /user/emails --jq '.[] | select(.primary==true).email' | head -n1)
+#
+#        # fallback to noreply if email is empty
+#        if [ -z "$email" ]; then
+#          login=$(gh api /user --jq .login)
+#          uid=$(gh api /user --jq .id)
+#          email="${uid}+${login}@users.noreply.github.com"
+#        fi
+#
+#        echo "name=$name"   >> $GITHUB_OUTPUT
+#        echo "email=$email" >> $GITHUB_OUTPUT
+#
+#    - name: Configure git author
+#      shell: bash
+#      run: |
+#        git config user.name  "${{ steps.who.outputs.name }}"
+#        git config user.email "${{ steps.who.outputs.email }}"
 
     - name: Configure git remote to push commit and tags with PAT
       shell: bash
